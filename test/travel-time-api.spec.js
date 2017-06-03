@@ -6,7 +6,7 @@ const url = require('url');
 
 describe('api.js', () => {
 
-    const target = require('../lib/api');
+    const target = require('../lib/api/travel-time-api');
 
     describe('urlTemplate()', () => {
         const result = url.parse(target.urlTemplate('新大塚', '新川崎', { Dhh: 7, Dm1: 0, Dm2: 0}), true);

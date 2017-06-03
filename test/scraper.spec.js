@@ -1,7 +1,7 @@
 const expect = require('chai').expect;
 const testdata = require('./testdata/html');
 
-const Scraper = require('../lib/scraper');
+const Scraper = require('../lib/service/scraper');
 
 describe('scraper.js', () => {
 

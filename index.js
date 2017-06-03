@@ -1,23 +1,29 @@
-const api = require('./lib/api');
-const Scraper = require('./lib/scraper');
 const input = require('./lib/input');
 const output = require('./lib/output');
+const service = require('./lib/service/service');
 
-let promises = input.HOME_LIST.map(home => {
+function task(index) {
 
-    return Promise.all([
-        api.get(home, input.DESTINATION_X),
-        api.get(home, input.DESTINATION_Y)
-    ])
-    .then(([resX, resY]) => {
-        let travelTimeX = (new Scraper(resX.data)).getTravelTime();
-        let travelTimeY = (new Scraper(resY.data)).getTravelTime();
-//        output.display(home, travelTimeX, travelTimeY);
-        output.plot(home, travelTimeX, travelTimeY);
+    let home = input.HOME_LIST[index];
+
+    return Promise.resolve().then(() => {
+        return service.normalizeStationName(home);
+    }).then(normalizedHome => {
+        return Promise.all([
+            service.getTravelTime(normalizedHome, input.DESTINATION_X),
+            service.getTravelTime(normalizedHome, input.DESTINATION_Y)
+        ])
+    }).then(([timeX, timeY]) => {
+        output.displayProgress(index+1, input.HOME_LIST.length, home);
+        return output.plot(home, timeX, timeY);
+    }).then(() => {
+        return ++index;
+    }).catch(err => {
+        console.log(err);
     });
 
-});
+}
 
-promises.reduce((prev, curr) => {
-    return prev.then(curr);
-}, Promise.resolve());
+input.HOME_LIST.reduce((prev, curr) => {
+    return prev.then(task);
+}, Promise.resolve(0));
